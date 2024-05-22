@@ -91,13 +91,17 @@ export class TodosController {
 
     public DeleteTodo = (req: Request, res: Response) => {
         const { id } = req.params
+        if (isNaN(parseInt(id))) return res.status(400).json({ mensaje: "Argumento id no es un numero" })
 
-        todos.forEach((todonew,index)=>{
-            if(todonew.id === parseInt(id)){
-                todos.splice(index,1)
+        const todoTest = todos.find(todo => todo.id == parseInt(id))
+        if (!todoTest) return res.status(400).json({ messageError: "la id del elmento no existe" })
+
+        todos.forEach((todonew, index) => {
+            if (todonew.id === parseInt(id)) {
+                todos.splice(index, 1)
             }
         })
-        
+
         res.json(todos)
     }
 }
