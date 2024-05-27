@@ -1,6 +1,7 @@
 import { Request, Response } from 'express'
 import { todo } from 'node:test'
 import { prisma } from '../../data/postgres'
+import { CreateDTOUsuarios, UpdateDTOUsuarios } from '../../dominio/dtos'
 
 export class TodosController {
 
@@ -17,7 +18,7 @@ export class TodosController {
         const { id } = req.params
 
         if (isNaN(parseInt(id))) return res.status(404).json({ mensaje: "Argumento id no es un numero" })
-        // const todo = todos.filter((todo) => todo.id === parseInt(id))
+
         const todo = await prisma.usuarios.findFirst({
             where: {
                 id: parseInt(id)
@@ -31,27 +32,42 @@ export class TodosController {
 
     public createTodo = async (req: Request, res: Response) => {
         const body = req.body
-        const { nombre, apellido, edad } = body
 
-        if (!nombre || !apellido || !edad) return res.status(400).json({ messageError: "No se estan enviando los argumentos requeridos" })
+        const [error, Dto] = CreateDTOUsuarios.create(body)
+
+        if (error) return res.status(400).json({ error: error })
 
         const todo = await prisma.usuarios.create({
-            data: {
-                nombre,
-                apellido,
-                edad
-            }
+            data: Dto!
         })
+
+
+        // const { nombre, apellido, edad } = body
+
+        // const todo = await prisma.usuarios.create({
+        //     data: {
+        //         nombre,
+        //         apellido,
+        //         edad
+        //     }
+        // })
 
         res.json(todo)
     }
 
     public UpdateTodo = async (req: Request, res: Response) => {
         const { id } = req.params
-        if (isNaN(parseInt(id))) return res.status(404).json({ mensaje: "Argumento id no es un numero" })
+
         const body = req.body
-        const { nombre, apellido, edad } = body
-        if (!nombre || !apellido || !edad) return res.status(400).json({ messageError: "No se estan enviando los argumentos requeridos" })
+
+        const [error, Dto] = UpdateDTOUsuarios.create({
+            id,
+            ...body
+        })
+
+        if (error) return res.status(400).json({ error: error })
+
+        // if (!nombre || !apellido || !edad) return res.status(400).json({ messageError: "No se estan enviando los argumentos requeridos" })
 
         const todoNotExist = await prisma.usuarios.findFirst({
             where: {
@@ -65,11 +81,7 @@ export class TodosController {
             where: {
                 id: parseInt(id)
             },
-            data: {
-                nombre,
-                apellido,
-                edad
-            }
+            data: Dto!.values
         })
 
         res.json(todo)
