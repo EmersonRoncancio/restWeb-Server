@@ -2,16 +2,25 @@ import { Request, Response } from 'express'
 import { todo } from 'node:test'
 import { prisma } from '../../data/postgres'
 import { CreateDTOUsuarios, UpdateDTOUsuarios } from '../../dominio/dtos'
+import { RepositorioImpl } from '../../implementacion/repositorio/repositorio.impl'
+import { TodoPostgres } from '../../implementacion/datasources/todo.postgres'
+import { TodoRepositorio } from '../../dominio'
+
+const CrudPostgres = new RepositorioImpl(
+    new TodoPostgres()
+)
 
 export class TodosController {
 
-    constructor() { }
+    constructor(
+        private readonly todoRepositorio: TodoRepositorio
+    ) { }
 
     public getTodos = async (req: Request, res: Response) => {
 
-        const todo = await prisma.usuarios.findMany()
+        const GetTOdo = await CrudPostgres.getTodo()
 
-        res.json(todo)
+        res.json(GetTOdo)
     }
 
     public getTodoId = async (req: Request, res: Response) => {
@@ -19,15 +28,13 @@ export class TodosController {
 
         if (isNaN(parseInt(id))) return res.status(404).json({ mensaje: "Argumento id no es un numero" })
 
-        const todo = await prisma.usuarios.findFirst({
-            where: {
-                id: parseInt(id)
-            }
-        })
+        try {
+            const getTodoID = await this.todoRepositorio.getTodoId(parseInt(id))
+            res.json(getTodoID)
+        } catch (error) {
+            res.status(400).json({ error: error })
+        }
 
-        if (!todo) return res.status(404).json({ mensaje: "Todo no existe" })
-
-        res.json(todo)
     }
 
     public createTodo = async (req: Request, res: Response) => {
@@ -37,26 +44,13 @@ export class TodosController {
 
         if (error) return res.status(400).json({ error: error })
 
-        const todo = await prisma.usuarios.create({
-            data: Dto!
-        })
+        const createTodo = await CrudPostgres.createTodo(Dto!)
 
-
-        // const { nombre, apellido, edad } = body
-
-        // const todo = await prisma.usuarios.create({
-        //     data: {
-        //         nombre,
-        //         apellido,
-        //         edad
-        //     }
-        // })
-
-        res.json(todo)
+        res.json(createTodo)
     }
 
     public UpdateTodo = async (req: Request, res: Response) => {
-        const { id } = req.params
+        const id = +req.params.id
 
         const body = req.body
 
@@ -67,24 +61,13 @@ export class TodosController {
 
         if (error) return res.status(400).json({ error: error })
 
-        // if (!nombre || !apellido || !edad) return res.status(400).json({ messageError: "No se estan enviando los argumentos requeridos" })
+        try {
+            const todoUpdate = await this.todoRepositorio.UpdateTodo(Dto!)
 
-        const todoNotExist = await prisma.usuarios.findFirst({
-            where: {
-                id: parseInt(id)
-            }
-        })
-
-        if (!todoNotExist) return res.status(404).json({ messageError: "la id del elmento no existe" })
-
-        const todo = await prisma.usuarios.update({
-            where: {
-                id: parseInt(id)
-            },
-            data: Dto!.values
-        })
-
-        res.json(todo)
+            res.json(todoUpdate)
+        } catch (error) {
+            res.status(400).json({error: error})
+        }
     }
 
     public DeleteTodo = async (req: Request, res: Response) => {

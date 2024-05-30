@@ -1,11 +1,4 @@
 
-interface Usuarios {
-    id: number
-    nombre: string
-    apellido: string
-    edad: number
-}
-
 export class TodoEntity {
 
     constructor(

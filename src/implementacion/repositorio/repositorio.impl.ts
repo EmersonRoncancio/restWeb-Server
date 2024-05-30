@@ -11,7 +11,7 @@ export class RepositorioImpl implements TodoRepositorio {
         return this.datasoruce.createTodo(TodoDto)
     }
     getTodo(): Promise<TodoEntity[]> {
-        return this.getTodo()
+        return this.datasoruce.getTodo()
     }
     getTodoId(id: number): Promise<TodoEntity> {
         return this.datasoruce.getTodoId(id)

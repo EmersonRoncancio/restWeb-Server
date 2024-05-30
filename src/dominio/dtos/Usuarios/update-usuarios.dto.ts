@@ -23,7 +23,7 @@ export class UpdateDTOUsuarios {
 
         const { id, nombre, apellido, edad } = props
 
-        if (!id || isNaN(parseInt(id))) return ["Id no es valido"]
+        if (!id || isNaN(id)) return ["Id no es valido"]
 
         return [undefined, new UpdateDTOUsuarios(id, nombre, apellido, edad)]
     }
