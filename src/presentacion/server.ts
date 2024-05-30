@@ -1,6 +1,5 @@
-import express, { Router, urlencoded } from 'express'
+import express, { Router } from 'express'
 import path from 'path'
-import { envs } from '../config/envs'
 
 interface EnvsTypes {
     directorio: string,

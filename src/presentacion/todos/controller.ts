@@ -74,20 +74,15 @@ export class TodosController {
         const { id } = req.params
         if (isNaN(parseInt(id))) return res.status(400).json({ mensaje: "Argumento id no es un numero" })
 
-        const todoNotExist = await prisma.usuarios.findFirst({
-            where: {
-                id: parseInt(id)
-            }
-        })
+        try {
+            const deleteTodo = await this.todoRepositorio.DeleteTodo(parseInt(id))
 
-        if (!todoNotExist) return res.status(400).json({ messageError: "la id del elmento no existe" })
+            res.json(deleteTodo)
+        } catch (error) {
+            res.status(400).json({error})
+        }
+        
 
-        const todo = await prisma.usuarios.delete({
-            where: {
-                id: parseInt(id)
-            }
-        })
 
-        res.json(todo)
     }
 }

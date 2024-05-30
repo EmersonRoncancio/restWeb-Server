@@ -1,7 +1,6 @@
 
 import { Router } from 'express'
 import { TodosController } from './controller'
-import { todo } from 'node:test'
 import { TodoPostgres } from '../../implementacion/datasources/todo.postgres'
 import { RepositorioImpl } from '../../implementacion/repositorio/repositorio.impl'
 
